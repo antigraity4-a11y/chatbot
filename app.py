@@ -1,21 +1,34 @@
+
 from google import genai
 import streamlit as st
 from dotenv import load_dotenv
+import os
 
-st.title('chatbots')
-
+# Load environment variables
 load_dotenv()
 
-client = genai.Client()
+st.title("Chatbot")
 
-with st.chat_message("user"):
-    prompt = st.chat_input("Ask anything")
-    
+# Initialize Gemini client
+client = genai.Client(
+    api_key=os.getenv("GEMINI_API_KEY")
+)
+
+# Chat input
+prompt = st.chat_input("Ask anything")
+
 if prompt:
-    interaction = client.interactions.create(
-        model="gemini-4-hydrogen",
-        input=prompt
-    )
+    with st.chat_message("user"):
+        st.write(prompt)
 
-    with st.chat_message("Ai"):
-        st.write(interaction.output_text)
+    try:
+        interaction = client.interactions.create(
+            model="gemini-2.5-flash",
+            input=prompt
+        )
+
+        with st.chat_message("assistant"):
+            st.write(interaction.output_text)
+
+    except Exception as e:
+        st.error(f"Error: {e}")
